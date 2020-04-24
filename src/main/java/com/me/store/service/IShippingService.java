@@ -8,5 +8,5 @@ public interface IShippingService {
     ServerResponse delete(Integer userId,Integer shippingId);
     ServerResponse update(Integer userId,Shipping shipping);
     ServerResponse select(Integer userId,Integer shippingId);
-    ServerResponse list(Integer userId);
+    ServerResponse list(Integer userId, int pageNum, int pageSize);
 }

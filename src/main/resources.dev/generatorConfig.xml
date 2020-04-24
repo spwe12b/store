@@ -20,10 +20,10 @@
 
         <!--jdbc的数据库连接 -->
         <jdbcConnection
-                driverClass="com.mysql.jdbc.Driver"
-                connectionURL="jdbc:mysql://LocalHost:3306/ps?characterEncoding=utf-8"
-                userId="root"
-                password="123456">
+                driverClass=""
+                connectionURL=""
+                userId=""
+                password="">
         </jdbcConnection>
 
 

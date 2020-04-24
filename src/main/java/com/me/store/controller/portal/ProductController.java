@@ -11,12 +11,12 @@ import org.springframework.web.bind.annotation.*;
 public class ProductController {
     @Autowired
     private IProductService iProductService;
-    @RequestMapping(value = "/{productId}",method = RequestMethod.GET)
-    public ServerResponse detail(@PathVariable Integer productId){
+    @RequestMapping(value = "detail.do",method = RequestMethod.GET)
+    public ServerResponse detail(Integer productId){
           return iProductService.getProductDeatil(productId);
     }
 
-    @RequestMapping("list.do")
+    @RequestMapping(value = "list.do",method = RequestMethod.GET)
     public ServerResponse<PageInfo> list(@RequestParam(value = "keyword",required = false)String keyword,
                                          @RequestParam(value = "categoryId",required = false)Integer categoryId,
                                          @RequestParam(value = "pageNum",defaultValue = "1") int pageNum,

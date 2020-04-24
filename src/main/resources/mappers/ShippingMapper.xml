@@ -173,9 +173,10 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
   <delete id="deleteByUserIdShippingId" parameterType="map">
-    delete shipping where user_id=#{userId} and id=#{shippingId}
+    delete from shipping where user_id=#{userId} and id=#{shippingId}
   </delete>
   <update id="updateByUserId" parameterType="com.me.store.pojo.Shipping">
+    update shipping
     set user_id = #{userId,jdbcType=INTEGER},
       receiver_name = #{receiverName,jdbcType=VARCHAR},
       receiver_phone = #{receiverPhone,jdbcType=VARCHAR},
@@ -188,11 +189,11 @@
       update_time =  now()
     where id = #{id,jdbcType=INTEGER} and user_id=#{userId}
   </update>
-  <select id="selectByUserIdShippingId" resultType="com.me.store.pojo.Shipping" parameterType="map">
+  <select id="selectByUserIdShippingId" resultMap="BaseResultMap" parameterType="map">
     select <include refid="Base_Column_List"/>
     from shipping where user_id=#{userId} and id=#{shippingId}
   </select>
-  <select id="selectByUserId" parameterType="int" resultType="com.me.store.pojo.Shipping">
+  <select id="selectByUserId" parameterType="int" resultMap="BaseResultMap">
     select <include refid="Base_Column_List"/>
     from shipping where user_id=#{userId}
   </select>

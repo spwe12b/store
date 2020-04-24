@@ -11,6 +11,7 @@ import com.me.store.util.RedisShardedPoolUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
@@ -22,7 +23,7 @@ import javax.servlet.http.HttpSession;
 public class UserManageController {
     @Autowired
     private IUserService iUserService;
-    @RequestMapping("login.do")
+    @RequestMapping(value = "login.do" ,method = RequestMethod.POST)
     public ServerResponse login(String username, String password, HttpServletRequest request,
                                 HttpServletResponse response, HttpSession session){
         ServerResponse<User> serverResponse=iUserService.login(username,password);

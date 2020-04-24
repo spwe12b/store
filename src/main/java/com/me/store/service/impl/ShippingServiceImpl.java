@@ -1,6 +1,7 @@
 package com.me.store.service.impl;
 
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.me.store.common.ServerResponse;
 import com.me.store.dao.ShippingMapper;
 import com.me.store.pojo.Shipping;
@@ -53,7 +54,8 @@ public class ShippingServiceImpl implements IShippingService {
      * @return
      */
     public ServerResponse update(Integer userId,Shipping shipping){
-        int resultCount=shippingMapper.updateByUserId(userId,shipping);
+        shipping.setUserId(userId);
+        int resultCount=shippingMapper.updateByUserId(shipping);
         if(resultCount>0){
             return ServerResponse.createBySuccessMessage("更新地址成功");
         }
@@ -79,9 +81,12 @@ public class ShippingServiceImpl implements IShippingService {
      * @param userId
      * @return
      */
-    public ServerResponse list(Integer userId){
-        List<Shipping> shippingList=shippingMapper.selectByUserId(userId);
-        return ServerResponse.createBySuccess(shippingList);
+    public ServerResponse list(Integer userId, int pageNum, int pageSize){
+
+        PageHelper.startPage(pageNum,pageSize);
+        List<Shipping> shippingList = shippingMapper.selectByUserId(userId);
+        PageInfo pageInfo = new PageInfo(shippingList);
+        return ServerResponse.createBySuccess(pageInfo);
     }
 
 

@@ -1,6 +1,7 @@
 package com.me.store.controller.portal;
 
 import com.me.store.common.Const;
+import com.me.store.common.ResponseCode;
 import com.me.store.common.ServerResponse;
 import com.me.store.pojo.User;
 import com.me.store.service.IUserService;
@@ -11,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
@@ -53,7 +55,7 @@ public class UserController {
      * @param user
      * @return
      */
-    @RequestMapping(value = "register.do" ,method = RequestMethod.GET)
+    @RequestMapping(value = "register.do" ,method = RequestMethod.POST)
     public ServerResponse register(User user){
         return iUserService.register(user);
     }
@@ -61,20 +63,20 @@ public class UserController {
     /**
      * 检查用户信息是否冲突
      * @param str   要检查的字段
-     * @param type  字段的类型 例：用户名，邮箱
+     * @param type  字段的类型 ：username,email,phone
      * @return
      */
-    @RequestMapping(value = "check_valid.do" ,method = RequestMethod.GET)
+    @RequestMapping(value = "check_valid.do" ,method = RequestMethod.POST)
     public ServerResponse<String> checkValid(String str,String type){
         return iUserService.checkValid(str,type);
     }
 
     /**
-     * 获取用户详细信息
+     * 获取用户登陆信息
      * @param request
      * @return
      */
-    @RequestMapping(value="get_user_info.do",method = RequestMethod.GET)
+    @RequestMapping(value="get_user_info.do",method = RequestMethod.POST)
     public ServerResponse getUserInfo(HttpServletRequest request){
           String loginToken=CookieUtil.readLoginToken(request);
           if(StringUtils.isEmpty(loginToken)){
@@ -83,17 +85,29 @@ public class UserController {
           String userJsonStr= RedisShardedPoolUtil.get(loginToken);
           User user=JsonUtil.string2Obj(userJsonStr,User.class);
           if(user==null){
-            return ServerResponse.createByErrorMessage("用户未登录");
+            return ServerResponse.createByErrorMessage("用户未登陆");
         }
         return ServerResponse.createBySuccess(user);
     }
 
-    /**
-     * 忘记密码下的获取问题
-     * @param username
-     * @return
-     */
-    @RequestMapping(value ="forget_get_question",method = RequestMethod.GET)
+    //获取用户详细信息
+    @RequestMapping(value = "get_information.do",method = RequestMethod.POST)
+    @ResponseBody
+    public ServerResponse<User> get_information(HttpServletRequest request){
+        String loginToken=CookieUtil.readLoginToken(request);
+        if(StringUtils.isEmpty(loginToken)){
+            return ServerResponse.createByErrorMessage("用户未登陆");
+        }
+        String userJsonStr= RedisShardedPoolUtil.get(loginToken);
+        User user=JsonUtil.string2Obj(userJsonStr,User.class);
+        if(user==null){
+            return ServerResponse.createByErrorMessage("用户未登陆");
+        }
+        return iUserService.getInformation(user.getId());
+    }
+
+    //忘记密码下的获取问题
+    @RequestMapping(value ="forget_get_question.do",method = RequestMethod.POST)
     public ServerResponse forgetGetQuestion(String username){
         return iUserService.selectQuestion(username);
     }
@@ -105,7 +119,7 @@ public class UserController {
      * @param answer
      * @return
      */
-    @RequestMapping(value ="forget_check_answer",method = RequestMethod.GET)
+    @RequestMapping(value ="forget_check_answer.do",method = RequestMethod.POST)
     public ServerResponse forgetCheckAnswer(String username,String question,String answer){
         return iUserService.checkAnswer(username,question,answer);
     }
@@ -117,7 +131,7 @@ public class UserController {
      * @param forgetToken
      * @return
      */
-    @RequestMapping(value ="forget_reset_password",method = RequestMethod.GET)
+    @RequestMapping(value ="forget_reset_password.do",method = RequestMethod.POST)
     public ServerResponse forgetResetPassword(String username,String passwordNew,String forgetToken){
         return iUserService.forgetResetPassword(username,passwordNew,forgetToken);
     }
@@ -125,13 +139,12 @@ public class UserController {
     /**
      * 登陆状态下的重置密码
      * @param request
-     * @param username
      * @param password
      * @param passwordNew
      * @return
      */
-    @RequestMapping(value ="reset_password",method = RequestMethod.GET)
-    public ServerResponse resetPassword(HttpServletRequest request,String username,String password,String passwordNew){
+    @RequestMapping(value ="reset_password.do",method = RequestMethod.POST)
+    public ServerResponse resetPassword(HttpServletRequest request,String password,String passwordNew){
         String loginToken=CookieUtil.readLoginToken(request);
         if(StringUtils.isEmpty(loginToken)){
             return ServerResponse.createByErrorMessage("用户未登录");
@@ -141,9 +154,6 @@ public class UserController {
         if(user==null){
             return ServerResponse.createByErrorMessage("用户未登录");
         }
-        return iUserService.resetPassword(username,password,passwordNew);
+        return iUserService.resetPassword(user.getUsername(),password,passwordNew);
     }
-
-
-
 }

@@ -8,10 +8,15 @@ import com.me.store.common.Const;
 import com.me.store.common.ServerResponse;
 import com.me.store.pojo.User;
 import com.me.store.service.IOrderService;
+import com.me.store.util.CookieUtil;
+import com.me.store.util.JsonUtil;
+import com.me.store.util.RedisShardedPoolUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,90 +32,117 @@ public class OrderController {
     @Autowired
     private IOrderService iOrderService;
 
-    @RequestMapping("list.do")
-    public ServerResponse list(HttpSession session,
+    @RequestMapping(value = "list.do",method = RequestMethod.POST)
+    public ServerResponse list(HttpServletRequest request,
                                @RequestParam(value = "pageNum",defaultValue = "1")int pageNum,
                                @RequestParam(value = "pageSize",defaultValue = "10")int pageSize){
-        User user=(User)session.getAttribute(Const.CURRENT_USER);
+        String loginToken= CookieUtil.readLoginToken(request);
+        if(StringUtils.isEmpty(loginToken)){
+            return ServerResponse.createByErrorMessage("用户未登录");
+        }
+        String userJsonStr= RedisShardedPoolUtil.get(loginToken);
+        User user= JsonUtil.string2Obj(userJsonStr,User.class);
         if(user==null){
-            return ServerResponse.createByErrorMessage("用户未登陆");
+            return ServerResponse.createByErrorMessage("用户未登录");
         }
         return iOrderService.getOrderVoList(user.getId(),pageNum,pageSize);
     }
     /**
      * 创建订单
-     * @param session
      * @param shippingId
      * @return
      */
 
-    @RequestMapping("create.do")
-    public ServerResponse create(HttpSession session,Integer shippingId){
-        User user=(User)session.getAttribute(Const.CURRENT_USER);
+    @RequestMapping(value = "create.do",method = RequestMethod.POST)
+        public ServerResponse create(HttpServletRequest request,Integer shippingId){
+        String loginToken=CookieUtil.readLoginToken(request);
+        if(StringUtils.isEmpty(loginToken)){
+            return ServerResponse.createByErrorMessage("用户未登录");
+        }
+        String userJsonStr= RedisShardedPoolUtil.get(loginToken);
+        User user=JsonUtil.string2Obj(userJsonStr,User.class);
         if(user==null){
-            return ServerResponse.createByErrorMessage("用户未登陆");
+            return ServerResponse.createByErrorMessage("用户未登录");
         }
       return iOrderService.createOrder(user.getId(),shippingId);
     }
 
     /**
      * 获取订单详情接口
-     * @param session
      * @param orderNo
      * @return
      */
-    @RequestMapping("detail.do")
-    public ServerResponse detail(HttpSession session,Long orderNo){
-        User user=(User)session.getAttribute(Const.CURRENT_USER);
+    @RequestMapping(value = "detail.do",method = RequestMethod.POST)
+    public ServerResponse detail(HttpServletRequest request,Long orderNo){
+        String loginToken=CookieUtil.readLoginToken(request);
+        if(StringUtils.isEmpty(loginToken)){
+            return ServerResponse.createByErrorMessage("用户未登录");
+        }
+        String userJsonStr= RedisShardedPoolUtil.get(loginToken);
+        User user=JsonUtil.string2Obj(userJsonStr,User.class);
         if(user==null){
-            return ServerResponse.createByErrorMessage("用户未登陆");
+            return ServerResponse.createByErrorMessage("用户未登录");
         }
         return iOrderService.getOrderDetail(user.getId(),orderNo);
     }
 
     /**
      * 取消订单
-     * @param session
      * @param orderNo
      * @return
      */
-    @RequestMapping("cancel.do")
-    public ServerResponse cancel(HttpSession session,Long orderNo){
-        User user=(User)session.getAttribute(Const.CURRENT_USER);
+    @RequestMapping(value = "cancel.do",method = RequestMethod.POST)
+    public ServerResponse cancel(HttpServletRequest request,Long orderNo){
+        String loginToken=CookieUtil.readLoginToken(request);
+        if(StringUtils.isEmpty(loginToken)){
+            return ServerResponse.createByErrorMessage("用户未登录");
+        }
+        String userJsonStr= RedisShardedPoolUtil.get(loginToken);
+        User user=JsonUtil.string2Obj(userJsonStr,User.class);
         if(user==null){
-            return ServerResponse.createByErrorMessage("用户未登陆");
+            return ServerResponse.createByErrorMessage("用户未登录");
         }
         return iOrderService.cancel(user.getId(),orderNo);
     }
 
     /**
      * 订单页面购物车商品展示
-     * @param session
      * @return
      */
-    @RequestMapping("get_order_cart_product.do")
-    public ServerResponse getOrderCartProduct(HttpSession session){
-        User user = (User)session.getAttribute(Const.CURRENT_USER);
-        if(user ==null){
-            return ServerResponse.createByErrorMessage("用户未登陆");
+    @RequestMapping(value = "get_order_cart_product.do",method = RequestMethod.POST)
+    public ServerResponse getOrderCartProduct(HttpServletRequest request){
+        String loginToken=CookieUtil.readLoginToken(request);
+        if(StringUtils.isEmpty(loginToken)){
+            return ServerResponse.createByErrorMessage("用户未登录");
+        }
+        String userJsonStr= RedisShardedPoolUtil.get(loginToken);
+        User user=JsonUtil.string2Obj(userJsonStr,User.class);
+        if(user==null){
+            return ServerResponse.createByErrorMessage("用户未登录");
         }
         return iOrderService.getOrderCartProduct(user.getId());
     }
 
     /**
      * 支付订单
-     * @param session
      * @param orderNo
      * @param request
      * @return
      */
-    @RequestMapping("pay.do")
-    public ServerResponse pay(HttpSession session, Long orderNo, HttpServletRequest request){
-        User user=(User)session.getAttribute(Const.CURRENT_USER);
+    @RequestMapping(value = "pay.do",method = RequestMethod.POST)
+    public ServerResponse pay(Long orderNo, HttpServletRequest request){
+        String loginToken=CookieUtil.readLoginToken(request);
+        if(StringUtils.isEmpty(loginToken)){
+            return ServerResponse.createByErrorMessage("用户未登录");
+        }
+        String userJsonStr= RedisShardedPoolUtil.get(loginToken);
+        User user=JsonUtil.string2Obj(userJsonStr,User.class);
         if(user==null){
-            return ServerResponse.createByErrorMessage("用户未登陆");
+            return ServerResponse.createByErrorMessage("用户未登录");
         }
         String path=request.getServletContext().getRealPath("upload");
+        System.out.println(request.getContextPath());
+        System.out.println(path);
         return iOrderService.pay(orderNo,user.getId(),path);
     }
 
@@ -119,8 +151,9 @@ public class OrderController {
      * @param request
      * @return
      */
-    @RequestMapping("alipay_callback.do")
+    @RequestMapping(value = "alipay_callback.do")
     public Object alipayCallback(HttpServletRequest request){
+        System.out.println("支付宝回调");
            Map<String,String> params= Maps.newHashMap();
            Map requestParams=request.getParameterMap();
            for(Iterator iterator=requestParams.keySet().iterator();iterator.hasNext();){
@@ -154,11 +187,16 @@ public class OrderController {
         return Const.AliCallback.RESPONSE_FAILED;
     }
     //查询订单是否支付成功
-    @RequestMapping("query_order_pay_status .do")
-    public ServerResponse pay(HttpSession session, Long orderNo){
-        User user=(User)session.getAttribute(Const.CURRENT_USER);
+    @RequestMapping(value = "query_order_pay_status.do",method = RequestMethod.POST)
+    public ServerResponse queryOrderPayStatus(HttpServletRequest request, Long orderNo){
+        String loginToken=CookieUtil.readLoginToken(request);
+        if(StringUtils.isEmpty(loginToken)){
+            return ServerResponse.createByErrorMessage("用户未登录");
+        }
+        String userJsonStr= RedisShardedPoolUtil.get(loginToken);
+        User user=JsonUtil.string2Obj(userJsonStr,User.class);
         if(user==null){
-            return ServerResponse.createByErrorMessage("用户未登陆");
+            return ServerResponse.createByErrorMessage("用户未登录");
         }
         ServerResponse serverResponse=iOrderService.queryOrderPayStatus(user.getId(),orderNo);
         if(serverResponse.isSuccess()){

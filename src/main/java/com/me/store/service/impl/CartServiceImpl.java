@@ -48,18 +48,19 @@ public class CartServiceImpl implements ICartService {
         //该商品尚未添加到购物车
         if(cart==null){
             Cart newCart=new Cart();
-            cart.setChecked(Const.Cart.ON_CHECKED);
-            cart.setProductId(productId);
-            cart.setQuantity(count);
-            cart.setUserId(userId);
-            int resultCount=cartMapper.insert(cart);
+            newCart.setChecked(Const.Cart.ON_CHECKED);
+            newCart.setProductId(productId);
+            newCart.setQuantity(count);
+            newCart.setUserId(userId);
+            int resultCount=cartMapper.insert(newCart);
             if(resultCount==0){
                 return ServerResponse.createByErrorMessage("新增购物车失败");
             }
         }else{
             //该商品已经添加到购物车
             cart.setQuantity(cart.getQuantity()+count);
-            int resultCount=cartMapper.insertSelective(cart);
+            System.out.println(cart.getUserId());
+            int resultCount=cartMapper.updateByPrimaryKeySelective(cart);
             if(resultCount==0){
                 return ServerResponse.createByErrorMessage("新增购物车失败");
             }
@@ -79,12 +80,12 @@ public class CartServiceImpl implements ICartService {
         if(productId==null||count==null||userId==null){
             return ServerResponse.createByErrorMessage("参数错误");
         }
-        Cart cart=cartMapper.selectByPrimaryKey(productId);
+        Cart cart=cartMapper.selectByUserIdProductId(userId,productId);
         if(cart==null){
             return ServerResponse.createByErrorMessage("该商品未添加到购物车");
         }
         cart.setQuantity(count);
-        cartMapper.insertSelective(cart);
+        cartMapper.updateByPrimaryKey(cart);
         CartVo cartVo=this.getCartVoLimit(userId);
         return ServerResponse.createBySuccess(cartVo);
     }

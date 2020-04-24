@@ -57,6 +57,7 @@ public class UserServiceImpl implements IUserService {
          return ServerResponse.createBySuccessMessage("注册成功");
     }
     public ServerResponse checkValid(String str,String type){
+        if(type.equals(Const.EMAIL)||type.equals(Const.PHONE)||type.equals(Const.USERNAME)){
         switch (type){
             case Const.EMAIL:
                  int resultCount=userMapper.checkEmail(str);
@@ -76,6 +77,8 @@ public class UserServiceImpl implements IUserService {
                     return ServerResponse.createByErrorMessage("用户名已存在");
                 }
                 break;
+        }
+        return ServerResponse.createBySuccess();
         }
         return ServerResponse.createByErrorMessage("参数错误");
     }
@@ -115,7 +118,7 @@ public class UserServiceImpl implements IUserService {
     }
     public ServerResponse resetPassword(String username,String password,String passwordNew){
         int resultCount=userMapper.checkPassword(username,MD5Util.MD5EncodeUtf8(password));
-        if(resultCount<0){
+        if(resultCount<=0){
             return ServerResponse.createByErrorMessage("用户名和密码不匹配");
         }
         String md5Password=MD5Util.MD5EncodeUtf8(passwordNew);
@@ -124,6 +127,15 @@ public class UserServiceImpl implements IUserService {
             return ServerResponse.createBySuccessMessage("重置密码成功");
         }
         return ServerResponse.createByErrorMessage("重置密码失败");
+    }
+    public ServerResponse<User> getInformation(Integer userId){
+        User user = userMapper.selectByPrimaryKey(userId);
+        if(user == null){
+            return ServerResponse.createByErrorMessage("找不到当前用户");
+        }
+        user.setPassword(org.apache.commons.lang3.StringUtils.EMPTY);
+        return ServerResponse.createBySuccess(user);
+
     }
 
 

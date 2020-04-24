@@ -9,7 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
     public class CookieUtil {
-    private static final String COOKIE_DOMAIN="store.com";
+//        129.28.187.226
+    private static final String COOKIE_DOMAIN="129.28.187.226";
     private static final String COOKIE_NAME="store_login_token";
     private static final Logger logger=LoggerFactory.getLogger(CookieUtil.class);
     //删除登陆cookie

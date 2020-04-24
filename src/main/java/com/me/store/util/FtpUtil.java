@@ -22,7 +22,7 @@ public class FtpUtil {
     public static boolean uploadFile(List<File> fileList)throws IOException{
         FtpUtil ftpUtil=new FtpUtil(ftpIp,ftpPort,ftpUser,ftpPassword);
         logger.info("开始连接FTP服务器");
-        boolean result=ftpUtil.uploadFile("img",fileList);
+        boolean result=ftpUtil.uploadFile("ftpfile-img",fileList);
         logger.info("结束上传,上传结果{}",result);
         return result;
     }
@@ -47,9 +47,8 @@ public class FtpUtil {
             ftpClient.enterLocalPassiveMode();
             for(File file:fileList){
                 fileInputStream=new FileInputStream(file);
-                ftpClient.storeFile(file.getName(),fileInputStream);
+                uploaded=ftpClient.storeFile(file.getName(),fileInputStream);
             }
-            uploaded=true;
         }catch (IOException e){
                logger.error("上传文件到ftp服务器异常",e);
            }finally {

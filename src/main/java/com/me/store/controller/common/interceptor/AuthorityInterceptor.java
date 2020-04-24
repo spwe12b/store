@@ -18,9 +18,7 @@ import java.io.PrintWriter;
 @Component
 
 public class AuthorityInterceptor implements HandlerInterceptor {
-    public static void main(String[] args) {
 
-    }
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String loginToken=CookieUtil.readLoginToken(request);

@@ -112,18 +112,18 @@
       update_time = now()
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <select id="selectByUserIdProductId" resultType="com.me.store.pojo.Cart" parameterType="map">
-    select
-    <include refid="Base_Column_List"/>
-    from Cart
-    where user_id=#{userId}
-    and product_id=#{productId}
-  </select>
-  <select id="selectByUserId" resultType="com.me.store.pojo.Cart" parameterType="int">
+  <select id="selectByUserIdProductId" resultMap="BaseResultMap" parameterType="map">
     select
     <include refid="Base_Column_List"/>
     from cart
-    where userId=#{userId}
+    where user_id=#{userId}
+    and product_id=#{productId}
+  </select>
+  <select id="selectByUserId" resultMap="BaseResultMap" parameterType="int">
+    select
+    <include refid="Base_Column_List"/>
+    from cart
+    where user_id=#{userId}
   </select>
   <delete id="deleteByUserIdProductId" parameterType="map">
     delete from cart
@@ -136,8 +136,10 @@
     </if>
   </delete>
   <update id="checkOrUnCheck" parameterType="map">
-    update set checked=#{checked}
-    from cart
+    update cart
+    set
+    checked=#{checked},
+    update_time = now()
     where user_id=#{userId}
     <if test="productId !=null">
       and product_id=#{productId}
@@ -149,7 +151,7 @@
   </select>
   <select id="isAllChecked" parameterType="int" resultType="int">
     select count(1) from cart
-    where user_id=userId
+    where user_id=#{userId}
     and checked=0
   </select>
   <select id="selectCheckedCartByUserId" resultMap="BaseResultMap" parameterType="int">

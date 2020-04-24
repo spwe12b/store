@@ -112,7 +112,7 @@
       update_time = now()
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <select id="selectChildrenCategoryById" resultType="com.me.store.pojo.Category" parameterType="int">
+  <select id="selectChildrenCategoryById" resultMap="BaseResultMap" parameterType="int">
     select <include refid="Base_Column_List"/> from category
     where parent_id=#{parentId}
   </select>

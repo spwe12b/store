@@ -48,9 +48,4 @@ public class CloseOrderTask {
         }
         logger.info("定时关单任务关闭");
     }
-
-    public static void main(String[] args) {
-        System.out.println(Long.parseLong(""));
-
-    }
 }

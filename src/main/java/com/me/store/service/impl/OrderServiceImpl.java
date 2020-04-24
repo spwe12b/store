@@ -79,7 +79,6 @@ public class OrderServiceImpl implements IOrderService {
         for(Order order:orderList){
             List<OrderItem> orderItemList=Lists.newArrayList();
             if(userId==null) {
-             //todo 管理员查询的时候不需要userId
                 orderItemList=orderItemMapper.selectByOrderNo(order.getOrderNo());
             }else{
               orderItemList=orderItemMapper.selectByOrderNoUserId(order.getOrderNo(),userId);
@@ -89,6 +88,7 @@ public class OrderServiceImpl implements IOrderService {
         }
         return orderVoList;
     }
+    //创建订单
     public ServerResponse createOrder(Integer userId,Integer shippingId){
          List<Cart> cartList=cartMapper.selectCheckedCartByUserId(userId);
          ServerResponse serverResponse=this.getCartOrderItem(userId,cartList);
@@ -124,7 +124,7 @@ public class OrderServiceImpl implements IOrderService {
         if(order==null){
             return ServerResponse.createByErrorMessage("该用户此订单不存在");
         }
-        if(order.getStatus()!=Const.OrderStatus.PAID.getCode()){
+        if(order.getStatus()!=Const.OrderStatus.NO_PAY.getCode()){
             return ServerResponse.createByErrorMessage("已付款或已取消");
         }
         Order updateOrder=new Order();
@@ -238,6 +238,7 @@ public class OrderServiceImpl implements IOrderService {
         order.setPayment(payment);
         order.setStatus(Const.OrderStatus.NO_PAY.getCode());
         order.setShippingId(shippingId);
+        order.setUserId(userId);
         order.setPostage(0);
         order.setPaymentType(Const.PaymentTypeEnum.ONLINE_PAY.getCode());
         int resultCount=orderMapper.insert(order);
@@ -426,12 +427,13 @@ public class OrderServiceImpl implements IOrderService {
         String tradeStatus=params.get(Const.AliCallback.TRADE_STATUS);
         Order order=orderMapper.selectByOrderNo(orderNo);
         if(order==null){
-            return ServerResponse.createByErrorMessage("非ps商城订单,回调忽略");
+            return ServerResponse.createByErrorMessage("非STORE商城订单,回调忽略");
         }
         if(order.getStatus()>=Const.OrderStatus.PAID.getCode()){
             return ServerResponse.createBySuccessMessage("支付宝重复调用");
         }
         if(Const.AliCallback.TRADE_SUCCESS.equals(tradeStatus)){
+            System.out.println("支付成功");
             order.setPaymentTime(DateTimeUtil.strToDate(params.get(Const.AliCallback.GMT_PAYMENT)));
             order.setStatus(Const.OrderStatus.PAID.getCode());
             orderMapper.updateByPrimaryKeySelective(order);
@@ -512,5 +514,4 @@ public class OrderServiceImpl implements IOrderService {
         }
 
     }
-
 }

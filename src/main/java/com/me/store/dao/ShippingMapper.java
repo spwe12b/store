@@ -21,7 +21,7 @@ public interface ShippingMapper {
 
     int deleteByUserIdShippingId(Integer userId,Integer shippingId);
 
-    int updateByUserId(Integer userId,Shipping shipping);
+    int updateByUserId(Shipping shipping);
 
     Shipping selectByUserIdShippingId(Integer userId,Integer shippingId);
 
