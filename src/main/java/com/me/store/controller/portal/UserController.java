@@ -156,4 +156,19 @@ public class UserController {
         }
         return iUserService.resetPassword(user.getUsername(),password,passwordNew);
     }
+
+    @RequestMapping(value = "update_information.do", method = RequestMethod.POST)
+    public ServerResponse<User> update_information(HttpServletRequest request, User user) {
+        String loginToken=CookieUtil.readLoginToken(request);
+        if(StringUtils.isEmpty(loginToken)){
+            return ServerResponse.createByErrorMessage("用户未登录");
+        }
+        String userJsonStr= RedisShardedPoolUtil.get(loginToken);
+        User userLogin=JsonUtil.string2Obj(userJsonStr,User.class);
+        if(userLogin==null){
+            return ServerResponse.createByErrorMessage("用户未登录");
+        }
+        user.setId(userLogin.getId());
+        return iUserService.updateInformation(user);
+    }
 }
